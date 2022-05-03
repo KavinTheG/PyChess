@@ -1,5 +1,7 @@
-from curses import window
+from tarfile import BLOCKSIZE
 import pygame
+from Board import Board
+import images
 
 
 BLACK = (0, 0, 0)
@@ -11,6 +13,10 @@ LIGHT = (181, 101, 29)
 WINDOW_HEIGHT = 400
 WINDOW_WIDTH = 400
 
+# Chess board size (8 by 8)
+SIZE = 8
+BLOCKSIZE = (int) (WINDOW_WIDTH / SIZE)
+
 
 def main():
     global SCREEN, CLOCK
@@ -19,10 +25,12 @@ def main():
     CLOCK = pygame.time.Clock()
     SCREEN.fill(BLACK)
 
+    b = Board(SIZE)
+    b.printBoardState()
 
     while True:
     
-        drawBoard(8)
+        drawBoard(SCREEN, DARK, LIGHT, BLOCKSIZE)
 
         for event in pygame.event.get():
             
@@ -36,25 +44,21 @@ def main():
 
 
             
-def drawBoard(size):
+def drawBoard(surface, dark, light, blockSize):
 
-    blockSize = (int) (WINDOW_HEIGHT / size)
-
-    #light = pygame.image.load("128px/square brown light_png_shadow_128px.png")
-    #dark = pygame.image.load("128px/square brown dark_png_shadow_128px.png")
-
- #   light = pygame.transform.scale(light, (blockSize, blockSize))
-#    dark = pygame.transform.scale(dark, (blockSize, blockSize))
-
-    for y in range(size):
-        for x in range(size):
+    for y in range(SIZE):
+        for x in range(SIZE):
             rect = pygame.Rect(x * blockSize, y * blockSize,
                                blockSize, blockSize)
 
+
             if (x % 2 == y % 2):
-                pygame.draw.rect(SCREEN, DARK, rect)
+                pygame.draw.rect(surface, dark, rect)
             else:
-                pygame.draw.rect(SCREEN, LIGHT, rect)
+                pygame.draw.rect(surface, light, rect)
+
+            if y == 1:
+                SCREEN.blit(images.b_p, (x * blockSize, blockSize * y))
 
 
 
