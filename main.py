@@ -1,6 +1,6 @@
-from tarfile import BLOCKSIZE
+import sys
 import pygame
-from Board import Board
+import board
 import images
 
 
@@ -15,7 +15,7 @@ WINDOW_WIDTH = 400
 
 # Chess board size (8 by 8)
 SIZE = 8
-BLOCKSIZE = (int) (WINDOW_WIDTH / SIZE)
+BLOCKSIZE = (int)(WINDOW_WIDTH / SIZE)
 
 
 def main():
@@ -25,42 +25,36 @@ def main():
     CLOCK = pygame.time.Clock()
     SCREEN.fill(BLACK)
 
-    b = Board(SIZE)
-    b.printBoardState()
+    b = board.Board(size=SIZE)
+    b.printBoardArray()
 
     while True:
-    
-        drawBoard(SCREEN, DARK, LIGHT, BLOCKSIZE)
+
+        # drawBoard(SCREEN, DARK, LIGHT, BLOCKSIZE)
+        b.drawBoard(SCREEN, DARK, LIGHT, BLOCKSIZE)
 
         for event in pygame.event.get():
-            
+
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
-        
-
         pygame.display.update()
 
 
-            
-def drawBoard(surface, dark, light, blockSize):
+'''def drawBoard(surface, dark, light, blockSize):
 
     for y in range(SIZE):
         for x in range(SIZE):
-            rect = pygame.Rect(x * blockSize, y * blockSize,
-                               blockSize, blockSize)
+            rect = pygame.Rect(x * blockSize, y * blockSize, blockSize, blockSize)
 
-
-            if (x % 2 == y % 2):
+            if x % 2 == y % 2:
                 pygame.draw.rect(surface, dark, rect)
             else:
                 pygame.draw.rect(surface, light, rect)
 
             if y == 1:
-                SCREEN.blit(images.b_p, (x * blockSize, blockSize * y))
-
-
+                SCREEN.blit(images.b_p, (x * blockSize, blockSize * y))'''
 
 
 if __name__ == "__main__":
