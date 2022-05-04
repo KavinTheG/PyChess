@@ -1,8 +1,5 @@
-class Peices:
-    def __init__(self, light, position, board, blockSize):
-
-        # Variable to store current position of peice
-        self.position = position
+class GeneralBehaviour:
+    def __init__(self, light, board, blockSize):
 
         # boolean value to determine if peice is dark/light
         self.light = light
@@ -14,6 +11,9 @@ class Peices:
         self.board = board
 
         self.blockSize = blockSize
+
+    def setPosition(self, position):
+        self.position = position
 
     def getPosition(self):
         return self.position

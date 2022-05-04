@@ -1,9 +1,10 @@
 import pygame
-import Classes.peices
+import Pieces.general_behaviour
 
-class Pawn(Classes.peices.Peices):
-    def __init__(self, light, position, board, blockSize):
-        super().__init__(light, position, board, blockSize)
+
+class Pawn(Pieces.general_behaviour.GeneralBehaviour):
+    def __init__(self, light, board, blockSize):
+        super().__init__(light, board, blockSize)
 
         load_sprite = pygame.image
         if self.light:

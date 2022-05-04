@@ -26,12 +26,13 @@ def main():
     SCREEN.fill(BLACK)
 
     b = board.Board(size=SIZE)
+    b.drawBoard(SCREEN, DARK, LIGHT, BLOCKSIZE)
     b.printBoardArray()
 
     while True:
 
         # drawBoard(SCREEN, DARK, LIGHT, BLOCKSIZE)
-        b.drawBoard(SCREEN, DARK, LIGHT, BLOCKSIZE)
+        # b.drawBoard(SCREEN, DARK, LIGHT, BLOCKSIZE)
 
         for event in pygame.event.get():
 
@@ -42,7 +43,7 @@ def main():
         pygame.display.update()
 
 
-'''def drawBoard(surface, dark, light, blockSize):
+"""def drawBoard(surface, dark, light, blockSize):
 
     for y in range(SIZE):
         for x in range(SIZE):
@@ -54,7 +55,7 @@ def main():
                 pygame.draw.rect(surface, light, rect)
 
             if y == 1:
-                SCREEN.blit(images.b_p, (x * blockSize, blockSize * y))'''
+                SCREEN.blit(images.b_p, (x * blockSize, blockSize * y))"""
 
 
 if __name__ == "__main__":
