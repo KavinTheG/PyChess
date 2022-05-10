@@ -2,6 +2,7 @@ from os import stat
 import pygame
 from chess.general_piece import GeneralPiece
 
+
 class Bishop(GeneralPiece):
     def __init__(self, x, y, light, block_size):
         super().__init__(x, y, light, block_size)
@@ -20,7 +21,6 @@ class Bishop(GeneralPiece):
 
         self.rect.x = x * block_size
         self.rect.y = y * block_size
-
 
     def get_board_pos(self):
         return self.rect.x // self.block_size, self.rect.y // self.block_size

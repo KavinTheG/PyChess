@@ -1,6 +1,7 @@
 import pygame
 from chess.general_piece import GeneralPiece
 
+
 class Castle(GeneralPiece):
     def __init__(self, x, y, light, block_size):
         super().__init__(x, y, light, block_size)
@@ -14,7 +15,7 @@ class Castle(GeneralPiece):
         self.sprite = pygame.transform.scale(
             load_sprite, (self.block_size, self.block_size)
         )
-        
+
         self.rect = self.sprite.get_rect()
 
         self.rect.x = x * block_size

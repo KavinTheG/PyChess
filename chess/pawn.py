@@ -21,7 +21,6 @@ class Pawn(GeneralPiece):
         self.rect.x = x * block_size
         self.rect.y = y * block_size
 
-
     def get_board_pos(self):
         return self.rect.x // self.block_size, self.rect.y // self.block_size
 

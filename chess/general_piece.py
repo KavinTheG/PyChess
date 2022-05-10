@@ -11,6 +11,6 @@ class GeneralPiece:
         self.y = y
 
         self.block_size = block_size
-        
+
     def isdigit(self):
         return False

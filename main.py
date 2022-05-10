@@ -1,6 +1,7 @@
 import sys
 import pygame
 from chess.board import Board
+from chess.game_logic import GameLogic
 
 BLACK = (0, 0, 0)
 WHITE = (200, 200, 200)
@@ -25,6 +26,7 @@ def main():
 
     b = Board(SCREEN, 8, DARK, LIGHT, BLOCKSIZE)
     b.print_board_state()
+    game = GameLogic()
 
     while True:
 
@@ -32,16 +34,20 @@ def main():
 
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()  
+                sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 coordinates = [i // BLOCKSIZE for i in pygame.mouse.get_pos()]
                 print("Clicked Coordinates: " + str(coordinates))
-                print(b.get_piece(coordinates[0], coordinates[1]))
-
-
+                piece = b.get_piece(coordinates[0], coordinates[1])
+                # print(piece)
+                print(
+                    "Possible moves: "
+                    + str(
+                        game.get_legel_moves(piece, b, coordinates[0], coordinates[1])
+                    )
+                )
 
         pygame.display.update()
-
 
 
 if __name__ == "__main__":
