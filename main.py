@@ -1,8 +1,6 @@
 import sys
 import pygame
-import board
-import images
-
+from chess.board import Board
 
 BLACK = (0, 0, 0)
 WHITE = (200, 200, 200)
@@ -25,37 +23,25 @@ def main():
     CLOCK = pygame.time.Clock()
     SCREEN.fill(BLACK)
 
-    b = board.Board(size=SIZE)
-    b.drawBoard(SCREEN, DARK, LIGHT, BLOCKSIZE)
-    b.printBoardArray()
+    b = Board(SCREEN, 8, DARK, LIGHT, BLOCKSIZE)
+    b.print_board_state()
 
     while True:
-
-        # drawBoard(SCREEN, DARK, LIGHT, BLOCKSIZE)
-        # b.drawBoard(SCREEN, DARK, LIGHT, BLOCKSIZE)
 
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                sys.exit()  
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                coordinates = [i // BLOCKSIZE for i in pygame.mouse.get_pos()]
+                print("Clicked Coordinates: " + str(coordinates))
+                print(b.get_piece(coordinates[0], coordinates[1]))
+
+
 
         pygame.display.update()
 
-
-"""def drawBoard(surface, dark, light, blockSize):
-
-    for y in range(SIZE):
-        for x in range(SIZE):
-            rect = pygame.Rect(x * blockSize, y * blockSize, blockSize, blockSize)
-
-            if x % 2 == y % 2:
-                pygame.draw.rect(surface, dark, rect)
-            else:
-                pygame.draw.rect(surface, light, rect)
-
-            if y == 1:
-                SCREEN.blit(images.b_p, (x * blockSize, blockSize * y))"""
 
 
 if __name__ == "__main__":
