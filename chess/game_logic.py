@@ -1,12 +1,21 @@
 from operator import pos
+from tkinter import N
 from chess.castle import Castle
 from chess.pawn import Pawn
 
 
 class GameLogic:
+
+    def __init__(self):
+        self.light_turn = True
+
     def get_legel_moves(self, piece, board, x, y):
         if type(piece) == int:
-            return 0
+            return []
+
+        if (self.light_turn and not piece.light) or \
+           (not self.light_turn and piece.light):
+           return []
 
         direction = -1 if piece.light else 1
         possible_moves = []
@@ -15,6 +24,12 @@ class GameLogic:
             if not y == 0 or not y == 7:
                 if type(board.get_piece(x, y + direction)) == int:
                     possible_moves.append((x, y + direction))
+
+                if y == 1 and type(board.get_piece(x, y + 2 * direction)) == int and not piece.light:
+                    possible_moves.append((x, y + 2 * direction))
+
+                if y == 6 and type(board.get_piece(x, y + 2 * direction)) == int and piece.light:
+                    possible_moves.append((x, y + 2 * direction))
                 if not x == 0:
                     if not type(board.get_piece(x - 1, y + direction)) == int:
                         piece_two = board.get_piece(x - 1, y + direction)
@@ -65,4 +80,5 @@ class GameLogic:
                         # if there is a piece, break the loop
                         break
 
+            
         return possible_moves

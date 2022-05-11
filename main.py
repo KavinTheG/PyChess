@@ -36,7 +36,7 @@ def main():
     piece = None
 
     while True:
-
+ 
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
@@ -56,7 +56,10 @@ def main():
                     
                     # At the previous click, a piece was selected
                     # Therefore this click determines the move of the piece
-                    b.move_piece(current_legal_moves, coordinates, piece)
+                    piece_moved = b.move_piece(current_legal_moves, coordinates, piece)
+
+                    # Only change the boolean value of light_turn, if an piece was moved
+                    game.light_turn = not game.light_turn if piece_moved else game.light_turn
                     selected_piece = not selected_piece
 
                 

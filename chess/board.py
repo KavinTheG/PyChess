@@ -132,7 +132,9 @@ class Board:
 
                 self.draw_board()
                 self.draw_pieces()
-                
 
+                return True
+        
+        return False
                 
 
