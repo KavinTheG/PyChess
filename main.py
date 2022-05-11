@@ -28,24 +28,38 @@ def main():
     b.print_board_state()
     game = GameLogic()
 
+    # List to store moves allowed by player (if player clicked on a piece)
+    current_legal_moves = []
+    # Determines if a piece was clicked
+    selected_piece = False 
+    # Store the selected piece
+    piece = None
+
     while True:
 
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
                 pygame.quit()
-                sys.exit()
+                sys.exit() 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 coordinates = [i // BLOCKSIZE for i in pygame.mouse.get_pos()]
-                print("Clicked Coordinates: " + str(coordinates))
-                piece = b.get_piece(coordinates[0], coordinates[1])
-                # print(piece)
-                print(
-                    "Possible moves: "
-                    + str(
-                        game.get_legel_moves(piece, b, coordinates[0], coordinates[1])
-                    )
-                )
+                if not selected_piece:
+                    piece = b.get_piece(coordinates[0], coordinates[1])
+                    
+                    # set variable to true if a chess piece was clicked
+                    selected_piece = not type(piece) == int
+                    current_legal_moves = game.get_legel_moves(piece, b, coordinates[0], coordinates[1])
+                    print(current_legal_moves)
+                
+                else:
+                    
+                    # At the previous click, a piece was selected
+                    # Therefore this click determines the move of the piece
+                    b.move_piece(current_legal_moves, coordinates, piece)
+                    selected_piece = not selected_piece
+
+                
 
         pygame.display.update()
 

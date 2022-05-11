@@ -17,10 +17,16 @@ class GameLogic:
                     possible_moves.append((x, y + direction))
                 if not x == 0:
                     if not type(board.get_piece(x - 1, y + direction)) == int:
-                        possible_moves.append((x - 1, y + direction))
+                        piece_two = board.get_piece(x - 1, y + direction)
+
+                        if not piece_two.light == piece.light:
+                            possible_moves.append((x - 1, y + direction))
                 if not x == 7:
                     if not type(board.get_piece(x + 1, y + direction)) == int:
-                        possible_moves.append((x + 1, y + direction))
+                        piece_two = board.get_piece(x + 1, y + direction)
+
+                        if not piece_two.light == piece.light:
+                            possible_moves.append((x + 1, y + direction))
 
         elif type(board.get_piece(x, y)) == Castle:
 

@@ -101,10 +101,16 @@ class Board:
                     pygame.draw.rect(self.surface, self.dark, rect)
 
     def draw_pieces(self):
-        for row in self.board:
-            for item in row:
-                if not type(item) == int:
-                    self.surface.blit(item.sprite, (item.rect.x, item.rect.y))
+        #print("draw_pieces called")
+        for row in range(self.size):
+            for col in range(self.size):
+                if not type(self.board[row][col]) == int:
+                    self.surface.blit(self.board[row][col].sprite,
+                                      self.board[row][col].rect)
+
+
+
+
 
     def print_board_state(self):
         for row in self.board:
@@ -112,3 +118,21 @@ class Board:
 
     def get_piece(self, x, y):
         return self.board[y][x]
+
+    def move_piece(self, legal_moves, new_move, piece):
+
+        for move in legal_moves:
+            if move[0] == new_move[0] and move[1] == new_move[1]:
+                old_coorindates = piece.get_board_pos()
+
+                piece.set_new_pos(new_move[0], new_move[1])
+
+                self.board[old_coorindates[1]][old_coorindates[0]] = 0
+                self.board[new_move[1]][new_move[0]] = piece
+
+                self.draw_board()
+                self.draw_pieces()
+                
+
+                
+

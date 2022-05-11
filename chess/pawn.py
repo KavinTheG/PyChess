@@ -24,6 +24,12 @@ class Pawn(GeneralPiece):
     def get_board_pos(self):
         return self.rect.x // self.block_size, self.rect.y // self.block_size
 
+    def set_new_pos(self, x, y):
+        self.x = x
+        self.y = y
+        self.rect.x = x * self.block_size
+        self.rect.y = y * self.block_size
+
     def __repr__(self) -> str:
         status = "dark" if not self.light else "light"
         return str(status) + " Pawn"
