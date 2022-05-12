@@ -20,11 +20,11 @@ class King(GeneralPiece):
 
         self.rect = self.sprite.get_rect()
 
-        self.rect.x = x * block_size
-        self.rect.y = y * block_size
+        self.rect_x = x * block_size
+        self.rect_y = y * block_size
 
     def get_board_pos(self):
-        return self.rect.x // self.block_size, self.rect.y // self.block_size
+        return self.rect_x // self.block_size, self.rect_y // self.block_size
 
     def __repr__(self) -> str:
         status = "dark" if not self.light else "light"

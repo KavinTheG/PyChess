@@ -106,7 +106,8 @@ class Board:
             for col in range(self.size):
                 if not type(self.board[row][col]) == int:
                     self.surface.blit(self.board[row][col].sprite,
-                                      self.board[row][col].rect)
+                                      (self.board[row][col].rect_x,
+                                       self.board[row][col].rect_y))
 
 
 
