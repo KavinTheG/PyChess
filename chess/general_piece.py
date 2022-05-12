@@ -20,7 +20,7 @@ class GeneralPiece:
 
     def isdigit(self):
         return False
-        
+
     def get_board_pos(self):
         return self.rect_x // self.block_size, self.rect_y // self.block_size
 

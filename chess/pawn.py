@@ -16,11 +16,10 @@ class Pawn(GeneralPiece):
             load_sprite, (self.block_size, self.block_size)
         )
 
-        #self.rect = self.sprite.get_rect()
+        # self.rect = self.sprite.get_rect()
 
         self.rect_x = x * block_size
         self.rect_y = y * block_size
-
 
     def __repr__(self) -> str:
         status = "dark" if not self.light else "light"
