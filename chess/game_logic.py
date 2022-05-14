@@ -166,7 +166,7 @@ class GameLogic:
                     # break the loop as there is a friendly piece
                     break
 
-        if not x == 1:
+        if not x == 7:
             for rows in range(x + 1, 8):
                 if type(board.get_piece(rows, y)) == int:
                     possible_moves.append((rows, y))

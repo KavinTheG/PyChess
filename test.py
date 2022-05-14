@@ -9,8 +9,6 @@ for i in range(5):
 
 board.append([])
 
-for i in range(5):
-    board[1].append(random.randint(1, 40))
+l = [1, 2]
 
-for new_x in range(5, 0, -1):
-    print(new_x)
+print(tuple(l) == l)

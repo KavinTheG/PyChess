@@ -21,6 +21,14 @@ class Board:
         self.light = light
         self.block_size = block_size
 
+        self.check = False
+
+        # Save location of the kings to variable
+        # Allows us to check if their location
+        # coincides with the a legal movment of another piece
+        self.dark_king_coord = [4, 0]
+        self.light_king_coord = [4, 7]
+
         # Goes throug the y-axis downwards
         for y in range(size):
             # Initialize empty list for each row
@@ -117,6 +125,38 @@ class Board:
     def get_piece(self, x, y):
         return self.board[y][x]
 
+    def is_check(self, legal_moves, light):
+
+        for move in legal_moves:
+
+            print(
+                "Possible Move: "
+                + str(move)
+                + " vs Dark King: "
+                + str(self.dark_king_coord)
+            )
+
+            if (
+                light
+                and move[0] == self.dark_king_coord[0]
+                and move[1] == self.dark_king_coord[1]
+            ):
+
+                self.check = True
+                break
+            elif (
+                not light
+                and move[1] == self.light_king_coord[1]
+                and move[1] == self.light_king_coord[1]
+            ):
+                self.check = True
+                break
+            else:
+                self.check = False
+
+        print("Check: " + str(self.check))
+        return self.check
+
     def move_piece(self, legal_moves, new_move, piece):
 
         for move in legal_moves:
@@ -128,6 +168,13 @@ class Board:
                 self.board[old_coorindates[1]][old_coorindates[0]] = 0
                 self.board[new_move[1]][new_move[0]] = piece
 
+                # Store new positions of the kings into their respective variables
+                if type(piece) == King:
+                    if piece.light:
+                        self.light_king_coord = new_move
+                    else:
+                        self.dark_king_coord = new_move
+                        print("Dark King: " + str(self.dark_king_coord))
                 self.draw_board()
                 self.draw_pieces()
 
