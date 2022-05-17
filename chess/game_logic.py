@@ -1,10 +1,9 @@
-import itertools
-from chess.bishop import Bishop
-from chess.castle import Castle
-from chess.king import King
-from chess.knight import Knight
-from chess.pawn import Pawn
-from chess.queen import Queen
+from .bishop import Bishop
+from .castle import Castle
+from .king import King
+from .knight import Knight
+from .pawn import Pawn
+from .queen import Queen
 
 
 class GameLogic:

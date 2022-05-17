@@ -1,12 +1,12 @@
+from matplotlib.pyplot import legend
 import pygame
-from chess.general_piece import GeneralPiece
 
-from chess.pawn import Pawn
-from chess.castle import Castle
-from chess.knight import Knight
-from chess.bishop import Bishop
-from chess.queen import Queen
-from chess.king import King
+from .pawn import Pawn
+from .castle import Castle
+from .knight import Knight
+from .bishop import Bishop
+from .queen import Queen
+from .king import King
 
 DARK = (101, 67, 33)
 LIGHT = (181, 101, 29)
@@ -22,12 +22,11 @@ class Board:
         self.block_size = block_size
 
         self.check = False
-
+        self.all_legal_moves = []
         # Save location of the kings to variable
         # Allows us to check if their location
         # coincides with the a legal movment of another piece
-        self.dark_king_coord = [4, 0]
-        self.light_king_coord = [4, 7]
+
 
         # Goes throug the y-axis downwards
         for y in range(size):
@@ -37,6 +36,7 @@ class Board:
 
             # Goes through the x-axis rightwards
             for x in range(size):
+                
                 if y == 0:
                     if x == 0 or x == 7:
                         dark_castle = Castle(x, y, False, block_size)
@@ -57,6 +57,9 @@ class Board:
                 elif y == 1:
                     dark_pawn = Pawn(x, y, False, block_size)
                     board_row.append(dark_pawn)
+
+                elif y == 2 or y == 5:
+                    board_row.append(0)
 
                 elif y == 6:
                     light_pawn = Pawn(x, y, True, block_size)
@@ -119,65 +122,50 @@ class Board:
                     )
 
     def print_board_state(self):
-        for row in self.board:
-            print(row)
+        for row in range(self.size):
+            print(self.board[row])
 
     def get_piece(self, x, y):
         return self.board[y][x]
-
-    def is_check(self, legal_moves, light):
-
-        for move in legal_moves:
-
-            print(
-                "Possible Move: "
-                + str(move)
-                + " vs Dark King: "
-                + str(self.dark_king_coord)
-            )
-
-            if (
-                light
-                and move[0] == self.dark_king_coord[0]
-                and move[1] == self.dark_king_coord[1]
-            ):
-
-                self.check = True
-                break
-            elif (
-                not light
-                and move[1] == self.light_king_coord[1]
-                and move[1] == self.light_king_coord[1]
-            ):
-                self.check = True
-                break
-            else:
-                self.check = False
-
-        print("Check: " + str(self.check))
-        return self.check
 
     def move_piece(self, legal_moves, new_move, piece):
 
         for move in legal_moves:
             if move[0] == new_move[0] and move[1] == new_move[1]:
-                old_coorindates = piece.get_board_pos()
 
-                piece.set_new_pos(new_move[0], new_move[1])
+                if type(piece) == King and new_move not in self.all_legal_moves:
+                    old_coorindates = piece.get_board_pos()
+                
+                    piece.set_new_pos(new_move[0], new_move[1])
 
-                self.board[old_coorindates[1]][old_coorindates[0]] = 0
-                self.board[new_move[1]][new_move[0]] = piece
+                    self.board[old_coorindates[1]][old_coorindates[0]] = 0
+                    self.board[new_move[1]][new_move[0]] = piece
 
-                # Store new positions of the kings into their respective variables
-                if type(piece) == King:
-                    if piece.light:
-                        self.light_king_coord = new_move
-                    else:
-                        self.dark_king_coord = new_move
-                        print("Dark King: " + str(self.dark_king_coord))
-                self.draw_board()
-                self.draw_pieces()
+                    self.draw_board()
+                    self.draw_pieces()
 
-                return True
+                    return True
+
+                elif type(piece) == King:
+                    self.check = True
+                    return False
+
+                else: 
+                    old_coorindates = piece.get_board_pos()
+                
+                    piece.set_new_pos(new_move[0], new_move[1])
+
+                    self.board[old_coorindates[1]][old_coorindates[0]] = 0
+                    self.board[new_move[1]][new_move[0]] = piece
+
+                    self.draw_board()
+                    self.draw_pieces()
+
+                    return True
 
         return False
+
+
+    def set_legal_moves(self, legal_moves, old_legal_moves):
+        self.all_legal_moves = [i for i in self.all_legal_moves if i not in old_legal_moves]
+        self.all_legal_moves = self.all_legal_moves + legal_moves
