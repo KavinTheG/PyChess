@@ -27,7 +27,6 @@ class Board:
         # Allows us to check if their location
         # coincides with the a legal movment of another piece
 
-
         # Goes throug the y-axis downwards
         for y in range(size):
             # Initialize empty list for each row
@@ -36,7 +35,7 @@ class Board:
 
             # Goes through the x-axis rightwards
             for x in range(size):
-                
+
                 if y == 0:
                     if x == 0 or x == 7:
                         dark_castle = Castle(x, y, False, block_size)
@@ -129,13 +128,15 @@ class Board:
         return self.board[y][x]
 
     def move_piece(self, legal_moves, new_move, piece):
+        new_move = tuple(new_move)
 
         for move in legal_moves:
             if move[0] == new_move[0] and move[1] == new_move[1]:
+                print("New Move: " + str(new_move))
 
                 if type(piece) == King and new_move not in self.all_legal_moves:
                     old_coorindates = piece.get_board_pos()
-                
+
                     piece.set_new_pos(new_move[0], new_move[1])
 
                     self.board[old_coorindates[1]][old_coorindates[0]] = 0
@@ -143,16 +144,17 @@ class Board:
 
                     self.draw_board()
                     self.draw_pieces()
-
+                    print("not check")
                     return True
 
-                elif type(piece) == King:
+                elif type(piece) == King and new_move in self.all_legal_moves:
+                    print("check")
                     self.check = True
                     return False
 
-                else: 
+                else:
                     old_coorindates = piece.get_board_pos()
-                
+
                     piece.set_new_pos(new_move[0], new_move[1])
 
                     self.board[old_coorindates[1]][old_coorindates[0]] = 0
@@ -160,12 +162,16 @@ class Board:
 
                     self.draw_board()
                     self.draw_pieces()
-
+                    print("!!!!")
                     return True
 
         return False
 
 
+
+
     def set_legal_moves(self, legal_moves, old_legal_moves):
-        self.all_legal_moves = [i for i in self.all_legal_moves if i not in old_legal_moves]
+        self.all_legal_moves = [
+            i for i in self.all_legal_moves if i not in old_legal_moves
+        ]
         self.all_legal_moves = self.all_legal_moves + legal_moves

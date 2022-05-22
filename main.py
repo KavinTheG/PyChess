@@ -1,3 +1,4 @@
+from hmac import new
 import sys
 import pygame
 from chess.board import Board
@@ -26,7 +27,7 @@ def main():
     SCREEN.fill(BLACK)
 
     b = Board(SCREEN, 8, DARK, LIGHT, BLOCKSIZE)
-    b.print_board_state()
+    #b.print_board_state()
     game = GameLogic()
 
     # List to store moves allowed by player (if player clicked on a piece)
@@ -35,6 +36,9 @@ def main():
     selected_piece = False
     # Store the selected piece
     piece = None
+
+    light_king = [4, 7]
+    dark_king = [4, 0]
 
     while True:
 
@@ -53,23 +57,35 @@ def main():
                     current_legal_moves = game.get_legel_moves(
                         piece, b, coordinates[0], coordinates[1]
                     )
-                    print(current_legal_moves)
+                    #print(current_legal_moves)
 
                 else:
 
                     # At the previous click, a piece was selected
                     # Therefore this click determines the move of the piece
+
+                    #if type(piece) == King:
+                    #    piece_moved = b.move_piece(current_legal_moves, coordinates, piece)
+                    #else:
                     piece_moved = b.move_piece(current_legal_moves, coordinates, piece)
+
+                    selected_piece = not selected_piece
+
+                    new_legal_moves = game.get_legel_moves (
+                            piece, b, coordinates[0], coordinates[1]
+                    )
+
+                    if not type(piece) == King:
+                        b.set_legal_moves(new_legal_moves, current_legal_moves)
+
+                    print("New Coordinates: " + str(new_legal_moves))
+                    
+                    print("All Legal Moves: " + str(b.all_legal_moves))
 
                     # Only change the boolean value of light_turn, if an piece was moved
                     game.light_turn = (
                         not game.light_turn if piece_moved else game.light_turn
                     )
-                    selected_piece = not selected_piece
-
-                    if not type(piece) == King:
-                        b.set_legal_moves(game.get_legel_moves (
-                            piece, b, coordinates[0], coordinates[1]), current_legal_moves)
 
         pygame.display.update()
 
