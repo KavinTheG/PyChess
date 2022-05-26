@@ -37,9 +37,6 @@ def main():
     # Store the selected piece
     piece = None
 
-    light_king = [4, 7]
-    dark_king = [4, 0]
-
     while True:
 
         for event in pygame.event.get():
@@ -64,23 +61,13 @@ def main():
                     # At the previous click, a piece was selected
                     # Therefore this click determines the move of the piece
 
-                    #if type(piece) == King:
-                    #    piece_moved = b.move_piece(current_legal_moves, coordinates, piece)
-                    #else:
-                    piece_moved = b.move_piece(current_legal_moves, coordinates, piece)
+                    if type(piece) == King:
+                        print(piece.light)
+                        piece_moved = b.move_king(piece, current_legal_moves, coordinates)
+                    else: 
+                        piece_moved = b.move_piece(current_legal_moves, coordinates, piece)
 
                     selected_piece = not selected_piece
-
-                    new_legal_moves = game.get_legel_moves (
-                            piece, b, coordinates[0], coordinates[1]
-                    )
-
-                    if not type(piece) == King:
-                        b.set_legal_moves(new_legal_moves, current_legal_moves)
-
-                    print("New Coordinates: " + str(new_legal_moves))
-                    
-                    print("All Legal Moves: " + str(b.all_legal_moves))
 
                     # Only change the boolean value of light_turn, if an piece was moved
                     game.light_turn = (
