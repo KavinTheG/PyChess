@@ -179,6 +179,9 @@ class Board:
                 return True
         return False
 
+
+    # TODO: makes pinned pieces
+    # These pieces cant move because it'll cause a check
     def get_king_illegal_moves(self, king):
         king_pos = []
         illegal_moves = []
