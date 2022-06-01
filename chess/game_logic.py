@@ -14,8 +14,9 @@ class GameLogic:
         if type(piece) == int:
             return []
 
-        if (self.light_turn and not piece.light) or \
-            (not self.light_turn and piece.light):
+        if (self.light_turn and not piece.light) or (
+            not self.light_turn and piece.light
+        ):
             return []
 
         direction = -1 if piece.light else 1

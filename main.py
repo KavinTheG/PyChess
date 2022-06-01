@@ -27,7 +27,7 @@ def main():
     SCREEN.fill(BLACK)
 
     b = Board(SCREEN, 8, DARK, LIGHT, BLOCKSIZE)
-    #b.print_board_state() 
+    # b.print_board_state()
     game = GameLogic()
 
     # List to store moves allowed by player (if player clicked on a piece)
@@ -54,7 +54,7 @@ def main():
                     current_legal_moves = game.get_legel_moves(
                         piece, b, coordinates[0], coordinates[1]
                     )
-                    #print(current_legal_moves)
+                    # print(current_legal_moves)
 
                 else:
 
@@ -63,11 +63,15 @@ def main():
 
                     if type(piece) == King:
                         if game.light_turn == piece.light:
-                            piece_moved = b.move_king(piece, current_legal_moves, coordinates)
+                            piece_moved = b.move_king(
+                                piece, current_legal_moves, coordinates
+                            )
                         else:
                             piece_moved = False
-                    else: 
-                        piece_moved = b.move_piece(current_legal_moves, coordinates, piece)
+                    else:
+                        piece_moved = b.move_piece(
+                            current_legal_moves, coordinates, piece
+                        )
 
                     selected_piece = not selected_piece
 

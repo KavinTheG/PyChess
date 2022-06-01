@@ -148,7 +148,7 @@ class Board:
 
                 self.board[old_coordinates[1]][old_coordinates[0]] = 0
                 self.board[new_move[1]][new_move[0]] = piece
-                
+
                 self.update_pins(not piece.light)
 
                 print("New Pinned Pieces: " + str(self.pinned_pieces))
@@ -161,7 +161,7 @@ class Board:
 
     def move_king(self, king, legal_moves, new_move):
 
-        #legal_moves = self.get_king_legal_moves(king)
+        # legal_moves = self.get_king_legal_moves(king)
 
         print("King Legal Moves: " + str(legal_moves))
 
@@ -181,13 +181,12 @@ class Board:
                         self.dark_king = new_move
 
                     self.update_pins(not king.light)
-                    self.draw_board() 
+                    self.draw_board()
                     self.draw_pieces()
                     print("Pinned Pieces: " + str(self.pinned_pieces))
                     return True
         print("Move_King returns false")
         return False
-
 
     # TODO: makes pinned pieces
     # These pieces cant move because it'll cause a check
@@ -195,17 +194,24 @@ class Board:
 
         current_pos = self.light_king if king.light else self.dark_king
         # Travel outwards radially in each direction
-        direction = [(-1, -1), (0, -1), (1, -1),
-                     (-1,  0),          (1,  0),
-                     (-1,  1), (0,  1), (1,  1)]
+        direction = [
+            (-1, -1),
+            (0, -1),
+            (1, -1),
+            (-1, 0),
+            (1, 0),
+            (-1, 1),
+            (0, 1),
+            (1, 1),
+        ]
 
         # Variable to store minimum number of times to travel outwards
         min_radius = 7 - min(king_pos) if min(king_pos) <= 3 else min(king_pos)
 
         for dir_index in range(len(direction)):
-            
+
             root_dir = direction[dir_index]
-            
+
             # Variable to remember pinned piece radius
             pinPieceRadius = 0
 
@@ -215,8 +221,8 @@ class Board:
             diagonal_index = [0, 2, 5, 7]
 
             for r in range(1, min_radius + 1):
-                new_dir = [king_pos[0] + r * root_dir[0], king_pos[1] + r * root_dir[1] ]
-                
+                new_dir = [king_pos[0] + r * root_dir[0], king_pos[1] + r * root_dir[1]]
+
                 print(new_dir)
 
                 # Skip the current position
@@ -225,7 +231,7 @@ class Board:
 
                 if 0 <= new_dir[0] < 8 and 0 <= new_dir[1] < 8:
                     piece = self.get_piece(new_dir[0], new_dir[1])
-                    
+
                     if not type(piece) == int:
                         print(piece)
 
@@ -241,49 +247,71 @@ class Board:
                                 pinPieceRadius = -1
 
                         # Enemy piece
-                        else: 
+                        else:
                             print("Enemy")
                             print("Direction Index: " + str(dir_index))
                             # Only Queen and Bishop can effect king in this direction
-                            #print('dir_index == (0 or 2 or 5 or 7): ' + str(bool(dir_index == 0 or 2 or 5 or 7)))
+                            # print('dir_index == (0 or 2 or 5 or 7): ' + str(bool(dir_index == 0 or 2 or 5 or 7)))
                             if dir_index in diagonal_index:
-                                if type(piece) == Bishop  or type(piece) == Queen:
+                                if type(piece) == Bishop or type(piece) == Queen:
 
-                                    print("This piece ( " + str(piece) + ") is potentially harmful")
-                                else: 
-                                    print("This piece is harmless -> Piece: " + 
-                                        str(piece) + ", dir-index: " + str(dir_index))
-                                    print("Status of conditions:" + 
-                                        str(bool(dir_index == 0 or 2 or 5 or 7)) + ", " +
-                                        str(not (type(piece) == Bishop or Queen)))
+                                    print(
+                                        "This piece ( "
+                                        + str(piece)
+                                        + ") is potentially harmful"
+                                    )
+                                else:
+                                    print(
+                                        "This piece is harmless -> Piece: "
+                                        + str(piece)
+                                        + ", dir-index: "
+                                        + str(dir_index)
+                                    )
+                                    print(
+                                        "Status of conditions:"
+                                        + str(bool(dir_index == 0 or 2 or 5 or 7))
+                                        + ", "
+                                        + str(not (type(piece) == Bishop or Queen))
+                                    )
 
                                     # Pin piece functionality
                                     pinPieceRadius = r
                                     continue
                             # Only Queen and Castle can effect king in this direction
-                            else: 
-                                if (type(piece) == Castle  or type(piece) == Queen):
-                                    print("This piece (" + str(piece) + ") is potentially harmful")
-                                else: 
-                                    print("This piece is harmless -> Piece: " + 
-                                        str(piece) + ", dir-index: " + str(dir_index))
-                                    print("Status of conditions:" + 
-                                        str(bool(dir_index == 0 or 2 or 5 or 7)) + ", " +
-                                        str(not (type(piece) == Castle or Queen)))
+                            else:
+                                if type(piece) == Castle or type(piece) == Queen:
+                                    print(
+                                        "This piece ("
+                                        + str(piece)
+                                        + ") is potentially harmful"
+                                    )
+                                else:
+                                    print(
+                                        "This piece is harmless -> Piece: "
+                                        + str(piece)
+                                        + ", dir-index: "
+                                        + str(dir_index)
+                                    )
+                                    print(
+                                        "Status of conditions:"
+                                        + str(bool(dir_index == 0 or 2 or 5 or 7))
+                                        + ", "
+                                        + str(not (type(piece) == Castle or Queen))
+                                    )
 
                                     pinPieceRadius = r
 
                                     continue
-                            
+
                             print("pinned piece: " + str(pinPieceRadius))
 
                             # If statement to check if there is any alliance piece detected already
                             # No alliance piece so far, this is an 'immediate enemy'
                             if pinPieceRadius == 0:
-                                print ("Immediate enemy: " + str(new_dir))
+                                print("Immediate enemy: " + str(new_dir))
                                 return False
-                        
-        return True 
+
+        return True
 
     # Call this method after moving any piece
     # These are pieces that can't be moved
@@ -295,17 +323,24 @@ class Board:
         # Clear pins
         self.pinned_pieces = []
 
-        direction = [(-1, -1), (0, -1), (1, -1),
-                     (-1,  0),          (1,  0),
-                     (-1,  1), (0,  1), (1,  1)]
+        direction = [
+            (-1, -1),
+            (0, -1),
+            (1, -1),
+            (-1, 0),
+            (1, 0),
+            (-1, 1),
+            (0, 1),
+            (1, 1),
+        ]
 
         # Variable to store minimum number of times to travel outwards
         min_radius = 7 - min(king_pos) if min(king_pos) <= 3 else min(king_pos)
 
         for dir_index in range(len(direction)):
-            
+
             root_dir = direction[dir_index]
-            
+
             # Variable to remember pinned piece radius
             pinPieceRadius = 0
 
@@ -314,8 +349,8 @@ class Board:
 
             diagonal_index = [0, 2, 5, 7]
 
-            for r in range(1, min_radius + 1):           
-                new_dir = [king_pos[0] + r * root_dir[0], king_pos[1] + r * root_dir[1] ]
+            for r in range(1, min_radius + 1):
+                new_dir = [king_pos[0] + r * root_dir[0], king_pos[1] + r * root_dir[1]]
 
                 # Skip the current position
                 if king_pos == new_dir:
@@ -335,18 +370,28 @@ class Board:
                                 # Thus, no pin pieces in this direction
                                 continue
 
-                        else: 
+                        else:
 
                             # This is an immediate attacker
                             # Thus, there is no pinned pieces in this direction
 
-                            if (dir_index in diagonal_index and type(piece) == Bishop  or type(piece) == Queen) or \
-                               (not dir_index in diagonal_index and type(piece) == Castle  or type(piece) == Queen):
+                            if (
+                                dir_index in diagonal_index
+                                and type(piece) == Bishop
+                                or type(piece) == Queen
+                            ) or (
+                                not dir_index in diagonal_index
+                                and type(piece) == Castle
+                                or type(piece) == Queen
+                            ):
                                 if pinPieceRadius == 0:
                                     continue
                                 else:
                                     attacker = True
-            if attacker: 
-                self.pinned_pieces.append(self.get_piece(king_pos[0] + pinPieceRadius * root_dir[0], king_pos[1] + pinPieceRadius * root_dir[1]))
-
- 
+            if attacker:
+                self.pinned_pieces.append(
+                    self.get_piece(
+                        king_pos[0] + pinPieceRadius * root_dir[0],
+                        king_pos[1] + pinPieceRadius * root_dir[1],
+                    )
+                )
