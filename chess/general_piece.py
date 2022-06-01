@@ -1,6 +1,3 @@
-from numpy import block
-
-
 class GeneralPiece:
     def __init__(self, x, y, light, block_size):
 

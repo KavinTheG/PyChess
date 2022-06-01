@@ -1,8 +1,7 @@
-import random
 
-board = []
 
-board.append([])
+l = [1, 2, 3, 4, 5]
 
-for i in range(-1, 2):
-    print(i)
+x = 5
+
+print(bool(x == (0 or 2 or 5 or 7)))

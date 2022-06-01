@@ -1,5 +1,4 @@
 from distutils.command.check import check
-from matplotlib.pyplot import legend
 import pygame
 
 from .pawn import Pawn
@@ -30,6 +29,8 @@ class Board:
         # coincides with the a legal movment of another piece
         self.light_king = [4, 7]
         self.dark_king = [4, 0]
+
+        self.pinned_pieces = []
 
         # Goes throug the y-axis downwards
         for y in range(size):
@@ -153,110 +154,137 @@ class Board:
 
     def move_king(self, king, legal_moves, new_move):
 
-        illegal_moves = self.get_king_illegal_moves(king)
+        #legal_moves = self.get_king_legal_moves(king)
 
-        # if the list below has any position in the illegal_movest list
-        # remove it
-        legal_moves = [i for i in legal_moves if list(i) not in illegal_moves]
-        print("King Illegal Moves: " + str(illegal_moves))
         print("King Legal Moves: " + str(legal_moves))
 
         for move in legal_moves:
             if move[0] == new_move[0] and move[1] == new_move[1]:
-                old_coordinates = self.light_king if king.light else self.dark_king
+                if self.is_king_move_legal(king, new_move):
 
-                king.set_new_pos(new_move[0], new_move[1])
-                self.board[old_coordinates[1]][old_coordinates[0]] = 0
-                self.board[new_move[1]][new_move[0]] = king
+                    old_coordinates = self.light_king if king.light else self.dark_king
 
-                if king.light:
-                    self.light_king = new_move
-                else:
-                    self.dark_king = new_move
+                    king.set_new_pos(new_move[0], new_move[1])
+                    self.board[old_coordinates[1]][old_coordinates[0]] = 0
+                    self.board[new_move[1]][new_move[0]] = king
 
-                self.draw_board()
-                self.draw_pieces()
-                return True
+                    if king.light:
+                        self.light_king = new_move
+                    else:
+                        self.dark_king = new_move
+
+                    self.draw_board()
+                    self.draw_pieces()
+                    print("Pinned Pieces: " + str(self.pinned_pieces))
+                    return True
+        print("Move_King returns false")
         return False
 
 
     # TODO: makes pinned pieces
     # These pieces cant move because it'll cause a check
-    def get_king_illegal_moves(self, king):
-        king_pos = []
-        illegal_moves = []
-        # Determine if the piece is safe in each direction of the king
-        directional_check = [None, None, None, 
-                             None,       None, 
-                             None, None, None]
+    def is_king_move_legal(self, king, king_pos):
+        #king_pos = self.light_king if king.light else self.dark_king
+        #legal_moves = []
+        current_pos = self.light_king if king.light else self.dark_king
+        # Travel outwards radially in each direction
+        direction = [(-1, -1), (0, -1), (1, -1),
+                     (-1,  0),          (1,  0),
+                     (-1,  1), (0,  1), (1,  1)]
 
-        if king.light:
-            king_pos = self.light_king
-        else:
-            king_pos = self.dark_king
+        # Variables to store the closest alliance pieces
+        pinned_location = [0, 0, 0, 0, 0, 0, 0, 0]
 
-        print("King Pos: " + str(king_pos))
-        # Number of times we must circulate around the king
-        # To check for possible checks (from Queen, Castle, Bishop)
-        radius = (self.size - 1) - min(king_pos)     
+        # Variable to store minimum number of times to travel outwards
+        min_radius = 7 - min(king_pos) if min(king_pos) <= 3 else min(king_pos)
 
-        # Add 1 to inclue the last round in the for loop
-        for r in range(1, radius + 1):
-            index = 0
-            for y_factor in range(-1, 2):
-                # x +/- r. y +/- r -> diagonals
-                # x, y +/- r -> up and down
-                # x +/- r, y -> left and right
+        for dir_index in range(len(direction)):
+            
+            root_dir = direction[dir_index]
+            
+            # Variable to remember pinned piece radius
+            pinPieceRadius = 0
 
-                for x_factor in range(-1, 2):
-                    new_pos = [king_pos[0] + x_factor * r, king_pos[1] + y_factor * r]
+            # Variable to check if an enemy was detected
+            attacker = False
+
+            diagonal_index = [0, 2, 5, 7]
+
+            for r in range(1, min_radius + 1):
+                new_dir = [king_pos[0] + r * root_dir[0], king_pos[1] + r * root_dir[1] ]
+                
+                print(new_dir)
+
+                # Skip the current position
+                if current_pos == new_dir:
+                    continue
+
+                if 0 <= new_dir[0] < 8 and 0 <= new_dir[1] < 8:
+                    piece = self.get_piece(new_dir[0], new_dir[1])
                     
-                    if new_pos[0] >= 0 and new_pos[0] < 8 and new_pos[1] >= 0 and new_pos[1] < 8:
-                        print("Checking Pos: " + str(new_pos))
-                        piece = self.get_piece(new_pos[0], new_pos[1])
-
-                        if type(piece) == int or new_pos == king_pos \
-                            or not directional_check[index] == None:
-                            print(index)
-                            index += 1 if not new_pos == king_pos else 0
-                            continue
-                        
+                    if not type(piece) == int:
                         print(piece)
-                        # The line of code below checks if theres a piece with same colour, 
-                        # The if statement above skips the loop if the direction 
-                        # has no opposition/alliance piece
-                        #directional_check[index] = not piece.light == king.light
 
-                        if directional_check[index] == None:
-                            if not piece.light == king.light:
-                                print(str(piece) + "!")
-                                if type(piece) == Queen or type(piece) == Castle or type(piece) == Bishop:
-                                    print(str(piece) + "!!")
-                                    directional_check[index] = True
-                                    illegal_moves.append(
-                                        [king_pos[0] + x_factor, king_pos[1] + y_factor]
-                                    )
-                                    illegal_moves.append(
-                                        [king_pos[0] + x_factor * -1, king_pos[1] + y_factor * -1]
-                                    )
-                                else:
-                                    if type(piece) == Pawn and not piece.light == king.light \
-                                        and abs(x_factor) == abs(y_factor) and r == 1:
-                                        # There is an opposite colour pawn within attack distance
-                                        directional_check = True
+                        # ALliance Piece
+                        if piece.light == king.light:
+                            print("Alliance")
+                            print("Direction Index: " + str(dir_index))
+                            # If statement to check if no alliance piece was detect so far
+                            # Also checks if no enemy piece was already met so far
+                            if pinPieceRadius == 0 and not attacker:
+                                pinPieceRadius = r
+                            elif not pinPieceRadius == 0 and not attacker:
+                                pinPieceRadius = -1
 
-                                    if not r == 1:
-                                        directional_check[index] = False
+                        # Enemy piece
+                        else: 
+                            print("Enemy")
+                            print("Direction Index: " + str(dir_index))
+                            # Only Queen and Bishop can effect king in this direction
+                            #print('dir_index == (0 or 2 or 5 or 7): ' + str(bool(dir_index == 0 or 2 or 5 or 7)))
+                            if dir_index in diagonal_index:
+                                if type(piece) == Bishop  or type(piece) == Queen:
 
-                            else:
-                                directional_check[index] = False
+                                    print("This piece ( " + str(piece) + ") is potentially harmful")
+                                else: 
+                                    print("This piece is harmless -> Piece: " + 
+                                        str(piece) + ", dir-index: " + str(dir_index))
+                                    print("Status of conditions:" + 
+                                        str(bool(dir_index == 0 or 2 or 5 or 7)) + ", " +
+                                        str(not (type(piece) == Bishop or Queen)))
 
-                    print("directional index: " + str(index)) 
-                    index += 1
-                    # for the directions the king cant move, I must gather 
-                    # the root position, 1 square next to the king 
-        print(directional_check)
-        return illegal_moves
+                                    # Pin piece functionality
+                                    pinPieceRadius = r
+                                    continue
+                            # Only Queen and Castle can effect king in this direction
+                            else: 
+                                if (type(piece) == Castle  or type(piece) == Queen):
+                                    print("This piece (" + str(piece) + ") is potentially harmful")
+                                else: 
+                                    print("This piece is harmless -> Piece: " + 
+                                        str(piece) + ", dir-index: " + str(dir_index))
+                                    print("Status of conditions:" + 
+                                        str(bool(dir_index == 0 or 2 or 5 or 7)) + ", " +
+                                        str(not (type(piece) == Castle or Queen)))
 
+                                    pinPieceRadius = r
+
+                                    continue
+                            
+                            print("pinned piece: " + str(pinPieceRadius))
+
+                            # If statement to check if there is any alliance piece detected already
+                            # No alliance piece so far, this is an 'immediate enemy'
+                            if pinPieceRadius == 0:
+                                print ("Immediate enemy: " + str(new_dir))
+                                return False
+                        
+        return True                                  
+
+                             
+                            
+
+                        
+                                
 
 
