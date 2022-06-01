@@ -135,6 +135,9 @@ class Board:
     def move_piece(self, legal_moves, new_move, piece):
         new_move = tuple(new_move)
 
+        if piece in self.pinned_pieces:
+            return False
+
         for move in legal_moves:
             if move[0] == new_move[0] and move[1] == new_move[1]:
                 print("New Move: " + str(new_move))
@@ -146,6 +149,10 @@ class Board:
                 self.board[old_coordinates[1]][old_coordinates[0]] = 0
                 self.board[new_move[1]][new_move[0]] = piece
                 
+                self.update_pins(not piece.light)
+
+                print("New Pinned Pieces: " + str(self.pinned_pieces))
+
                 self.draw_board()
                 self.draw_pieces()
                 return True
@@ -173,7 +180,8 @@ class Board:
                     else:
                         self.dark_king = new_move
 
-                    self.draw_board()
+                    self.update_pins(not king.light)
+                    self.draw_board() 
                     self.draw_pieces()
                     print("Pinned Pieces: " + str(self.pinned_pieces))
                     return True
@@ -184,16 +192,12 @@ class Board:
     # TODO: makes pinned pieces
     # These pieces cant move because it'll cause a check
     def is_king_move_legal(self, king, king_pos):
-        #king_pos = self.light_king if king.light else self.dark_king
-        #legal_moves = []
+
         current_pos = self.light_king if king.light else self.dark_king
         # Travel outwards radially in each direction
         direction = [(-1, -1), (0, -1), (1, -1),
                      (-1,  0),          (1,  0),
                      (-1,  1), (0,  1), (1,  1)]
-
-        # Variables to store the closest alliance pieces
-        pinned_location = [0, 0, 0, 0, 0, 0, 0, 0]
 
         # Variable to store minimum number of times to travel outwards
         min_radius = 7 - min(king_pos) if min(king_pos) <= 3 else min(king_pos)
@@ -279,12 +283,70 @@ class Board:
                                 print ("Immediate enemy: " + str(new_dir))
                                 return False
                         
-        return True                                  
+        return True 
 
-                             
-                            
+    # Call this method after moving any piece
+    # These are pieces that can't be moved
+    # Otherwise, it will cause a check
+    def update_pins(self, light):
 
-                        
-                                
+        king_pos = self.light_king if light else self.dark_king
 
+        # Clear pins
+        self.pinned_pieces = []
 
+        direction = [(-1, -1), (0, -1), (1, -1),
+                     (-1,  0),          (1,  0),
+                     (-1,  1), (0,  1), (1,  1)]
+
+        # Variable to store minimum number of times to travel outwards
+        min_radius = 7 - min(king_pos) if min(king_pos) <= 3 else min(king_pos)
+
+        for dir_index in range(len(direction)):
+            
+            root_dir = direction[dir_index]
+            
+            # Variable to remember pinned piece radius
+            pinPieceRadius = 0
+
+            # Variable to check if an enemy was detected
+            attacker = False
+
+            diagonal_index = [0, 2, 5, 7]
+
+            for r in range(1, min_radius + 1):           
+                new_dir = [king_pos[0] + r * root_dir[0], king_pos[1] + r * root_dir[1] ]
+
+                # Skip the current position
+                if king_pos == new_dir:
+                    continue
+
+                if 0 <= new_dir[0] < 8 and 0 <= new_dir[1] < 8:
+                    piece = self.get_piece(new_dir[0], new_dir[1])
+
+                    if not type(piece) == int:
+                        if piece.light == light:
+
+                            # No alliance piece met so far
+                            if pinPieceRadius == 0:
+                                pinPieceRadius = r
+                            elif not pinPieceRadius == 0 and not attacker:
+                                # Two or more consecutive alliance piece
+                                # Thus, no pin pieces in this direction
+                                continue
+
+                        else: 
+
+                            # This is an immediate attacker
+                            # Thus, there is no pinned pieces in this direction
+
+                            if (dir_index in diagonal_index and type(piece) == Bishop  or type(piece) == Queen) or \
+                               (not dir_index in diagonal_index and type(piece) == Castle  or type(piece) == Queen):
+                                if pinPieceRadius == 0:
+                                    continue
+                                else:
+                                    attacker = True
+            if attacker: 
+                self.pinned_pieces.append(self.get_piece(king_pos[0] + pinPieceRadius * root_dir[0], king_pos[1] + pinPieceRadius * root_dir[1]))
+
+ 
