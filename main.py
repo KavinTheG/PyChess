@@ -26,16 +26,13 @@ def main():
     CLOCK = pygame.time.Clock()
     SCREEN.fill(BLACK)
 
-    b = Board(SCREEN, 8, DARK, LIGHT, BLOCKSIZE)
-    # b.print_board_state()
-    game = GameLogic()
-
-    # List to store moves allowed by player (if player clicked on a piece)
-    current_legal_moves = []
-    # Determines if a piece was clicked
-    selected_piece = False
+    board = Board(SCREEN, 8, DARK, LIGHT, BLOCKSIZE)
+    
     # Store the selected piece
     piece = None
+
+    # Variable determines player's turn
+    light_turn = True
 
     while True:
 
@@ -46,39 +43,39 @@ def main():
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 coordinates = [i // BLOCKSIZE for i in pygame.mouse.get_pos()]
-                if not selected_piece:
-                    piece = b.get_piece(coordinates[0], coordinates[1])
+                
+                # No piece was selected so far
+                if piece == None:
 
-                    # set variable to true if a chess piece was clicked
-                    selected_piece = not type(piece) == int
-                    current_legal_moves = game.get_legel_moves(
-                        piece, b, coordinates[0], coordinates[1]
-                    )
-                    # print(current_legal_moves)
+                    possible_piece = board.get_piece(coordinates[0], coordinates[1])
 
+                    # Checks if a valid piece was clicked
+                    if not type(possible_piece) == int:
+                        if possible_piece.light == light_turn:
+                            piece = possible_piece
+                        else: 
+                            piece = None
+                    else: 
+                        piece = None
+
+                # Checks if a valid move was made
                 else:
+                    valid_move = board.move_piece(piece, coordinates)
 
-                    # At the previous click, a piece was selected
-                    # Therefore this click determines the move of the piece
+                    if valid_move:
+                        light_turn = not light_turn
+                        print(light_turn)
 
-                    if type(piece) == King:
-                        if game.light_turn == piece.light:
-                            piece_moved = b.move_king(
-                                piece, current_legal_moves, coordinates
-                            )
-                        else:
-                            piece_moved = False
+                        # Clear up piece variable
+                        piece = None
                     else:
-                        piece_moved = b.move_piece(
-                            current_legal_moves, coordinates, piece
-                        )
+                        possible_piece = board.get_piece(coordinates[0], coordinates[1])
 
-                    selected_piece = not selected_piece
+                        if not type(possible_piece) == int:
+                            if possible_piece.light == light_turn:
+                                piece = possible_piece
 
-                    # Only change the boolean value of light_turn, if an piece was moved
-                    game.light_turn = (
-                        not game.light_turn if piece_moved else game.light_turn
-                    )
+                            
 
         pygame.display.update()
 

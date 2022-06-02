@@ -132,8 +132,10 @@ class Board:
     def get_piece(self, x, y):
         return self.board[y][x]
 
-    def move_piece(self, legal_moves, new_move, piece):
-        new_move = tuple(new_move)
+    def move_piece(self, piece, new_move):
+        #new_move = tuple(new_move)
+
+        legal_moves = piece.get_legal_moves(self)
 
         if piece in self.pinned_pieces:
             return False
@@ -188,25 +190,23 @@ class Board:
         print("Move_King returns false")
         return False
 
-    # TODO: makes pinned pieces
+    # TODO: check for pawns, knights
     # These pieces cant move because it'll cause a check
     def is_king_move_legal(self, king, king_pos):
 
         current_pos = self.light_king if king.light else self.dark_king
         # Travel outwards radially in each direction
-        direction = [
-            (-1, -1),
-            (0, -1),
-            (1, -1),
-            (-1, 0),
-            (1, 0),
-            (-1, 1),
-            (0, 1),
-            (1, 1),
+        direction = [(-1, -1),(0, -1),(1, -1),
+                     (-1,  0),        (1,  0),
+                     (-1,  1),(0,  1),(1,  1),
         ]
 
         # Variable to store minimum number of times to travel outwards
         min_radius = 7 - min(king_pos) if min(king_pos) <= 3 else min(king_pos)
+
+        pawn_direction = [0, 2] if not king.light else [5, 7]
+
+        diagonal_index = [0, 2, 5, 7]
 
         for dir_index in range(len(direction)):
 
@@ -217,8 +217,6 @@ class Board:
 
             # Variable to check if an enemy was detected
             attacker = False
-
-            diagonal_index = [0, 2, 5, 7]
 
             for r in range(1, min_radius + 1):
                 new_dir = [king_pos[0] + r * root_dir[0], king_pos[1] + r * root_dir[1]]
@@ -250,8 +248,11 @@ class Board:
                         else:
                             print("Enemy")
                             print("Direction Index: " + str(dir_index))
-                            # Only Queen and Bishop can effect king in this direction
-                            # print('dir_index == (0 or 2 or 5 or 7): ' + str(bool(dir_index == 0 or 2 or 5 or 7)))
+                            
+                            # There is a pawn 1 square diagonally away
+                            if dir_index in pawn_direction and r == 1:
+                                return False
+
                             if dir_index in diagonal_index:
                                 if type(piece) == Bishop or type(piece) == Queen:
 
@@ -277,8 +278,34 @@ class Board:
                                     # Pin piece functionality
                                     pinPieceRadius = r
                                     continue
-                            # Only Queen and Castle can effect king in this direction
+
+                            # Only Queen and Castle (maybe Knight) can effect king in this direction
                             else:
+                                if r == 2:
+                                    print("Checking for Knights")
+                                    if dir_index == 1 or dir_index == 5:
+                                        knight_pos_left = [new_dir[0] - 1, new_dir[1]]
+                                        knight_pos_right = [new_dir[0] + 1, new_dir[1]]
+                                        
+                                        if 0 <= (knight_pos_left[0] and knight_pos_left[1]) < 8: 
+                                            if type(piece) == Knight:
+                                                return False     
+
+                                        if 0 <= (knight_pos_right[0] and knight_pos_right[1]) < 8: 
+                                            if type(piece) == Knight:
+                                                return False   
+                                    else: 
+                                        knight_pos_up = [new_dir[0], new_dir[1] - 1]
+                                        knight_pos_down = [new_dir[0], new_dir[1] + 1]
+                                        
+                                        if 0 <= (knight_pos_up[0] and knight_pos_up[1]) < 8: 
+                                            if type(piece) == Knight:
+                                                return False     
+
+                                        if 0 <= (knight_pos_down[0] and knight_pos_down[1]) < 8: 
+                                            if type(piece) == Knight:
+                                                return False   
+
                                 if type(piece) == Castle or type(piece) == Queen:
                                     print(
                                         "This piece ("
