@@ -19,6 +19,7 @@ class Bishop(GeneralPiece):
 
         self.rect = self.sprite.get_rect()
 
+        self.x, self.y = x, y
         self.rect_x = x * block_size
         self.rect_y = y * block_size
 

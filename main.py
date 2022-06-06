@@ -69,6 +69,8 @@ def main():
                         # Clear up piece variable
                         piece = None
                     else:
+
+                        # Change focus to another alliance piece if it was selected
                         possible_piece = board.get_piece(coordinates[0], coordinates[1])
 
                         if not type(possible_piece) == int:

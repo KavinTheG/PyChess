@@ -26,3 +26,7 @@ class GeneralPiece:
         self.y = y
         self.rect_x = x * self.block_size
         self.rect_y = y * self.block_size
+
+    def __eq__(self, __o: object) -> bool:
+        if isinstance(__o, GeneralPiece):
+            return __o.x == self.x and __o.y == self.y

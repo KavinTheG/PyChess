@@ -30,7 +30,17 @@ class Board:
         self.light_king = [4, 7]
         self.dark_king = [4, 0]
 
+        self.dark_pieces = []
+        self.light_pieces = []
+
+        # pieces that can't move as it'll cause a check
         self.pinned_pieces = []
+
+        # Pieces threatening the dark king
+        self.dark_enemy_pieces = []
+
+        # Pieces threatening the light king
+        self.light_enemy_pieces = []
 
         # Goes throug the y-axis downwards
         for y in range(size):
@@ -44,18 +54,23 @@ class Board:
                 if y == 0:
                     if x == 0 or x == 7:
                         dark_castle = Castle(x, y, False, block_size)
+                        self.dark_pieces.append(dark_castle)
                         board_row.append(dark_castle)
                     elif x == 1 or x == 6:
                         dark_knight = Knight(x, y, False, block_size)
+                        self.dark_pieces.append(dark_knight)
                         board_row.append(dark_knight)
                     elif x == 2 or x == 5:
                         dark_bishop = Bishop(x, y, False, block_size)
+                        self.dark_pieces.append(dark_bishop)
                         board_row.append(dark_bishop)
                     elif x == 3:
                         dark_queen = Queen(x, y, False, block_size)
+                        self.dark_pieces.append(dark_queen)
                         board_row.append(dark_queen)
                     else:
                         dark_king = King(x, y, False, block_size)
+                        self.dark_pieces.append(dark_king)
                         board_row.append(dark_king)
 
                 elif y == 1:
@@ -91,7 +106,7 @@ class Board:
             self.board.append(board_row)
 
         self.size = size
-
+        
         self.draw_board()
         self.draw_pieces()
 
@@ -134,15 +149,34 @@ class Board:
 
     def move_piece(self, piece, new_move):
         #new_move = tuple(new_move)
-
+        print(str(piece) + " was selected.")
         legal_moves = piece.get_legal_moves(self)
+        print(legal_moves)
 
         if piece in self.pinned_pieces:
             return False
 
+        guards = []
+
         for move in legal_moves:
             if move[0] == new_move[0] and move[1] == new_move[1]:
+                if self.check:
+                    king_killers = self.light_enemy_pieces if piece.light else self.dark_enemy_pieces
+                    guards = self.collect_guardian_pieces(king_killers)
+                    if not piece in guards:
+                        return False
+
+
                 print("New Move: " + str(new_move))
+
+                if type(piece) == King:
+                    if not self.is_square_safe(piece.light, new_move):
+                        return False
+                    if piece.light:
+                        self.light_king = new_move
+                    else:
+                        self.dark_king = new_move
+
 
                 old_coordinates = piece.get_board_pos()
 
@@ -151,60 +185,43 @@ class Board:
                 self.board[old_coordinates[1]][old_coordinates[0]] = 0
                 self.board[new_move[1]][new_move[0]] = piece
 
+
                 self.update_pins(not piece.light)
 
                 print("New Pinned Pieces: " + str(self.pinned_pieces))
 
                 self.draw_board()
                 self.draw_pieces()
+
+                opp_king_pos = self.dark_king if piece.light else self.light_king
+
+                # Checking if the current opposition king is in check
+                self.check = not self.is_square_safe(not piece.light, opp_king_pos )
                 return True
 
         return False
 
-    def move_king(self, king, legal_moves, new_move):
-
-        # legal_moves = self.get_king_legal_moves(king)
-
-        print("King Legal Moves: " + str(legal_moves))
-
-        for move in legal_moves:
-            if move[0] == new_move[0] and move[1] == new_move[1]:
-                if self.is_king_move_legal(king, new_move):
-
-                    old_coordinates = self.light_king if king.light else self.dark_king
-
-                    king.set_new_pos(new_move[0], new_move[1])
-                    self.board[old_coordinates[1]][old_coordinates[0]] = 0
-                    self.board[new_move[1]][new_move[0]] = king
-
-                    if king.light:
-                        self.light_king = new_move
-                    else:
-                        self.dark_king = new_move
-
-                    self.update_pins(not king.light)
-                    self.draw_board()
-                    self.draw_pieces()
-                    print("Pinned Pieces: " + str(self.pinned_pieces))
-                    return True
-        print("Move_King returns false")
-        return False
-
     # TODO: check for pawns, knights
     # These pieces cant move because it'll cause a check
-    def is_king_move_legal(self, king, king_pos):
+    def is_square_safe(self, light, king_pos):
 
-        current_pos = self.light_king if king.light else self.dark_king
+        current_pos = self.light_king if light else self.dark_king
         # Travel outwards radially in each direction
         direction = [(-1, -1),(0, -1),(1, -1),
                      (-1,  0),        (1,  0),
                      (-1,  1),(0,  1),(1,  1),
         ]
 
+        # Ensures if the piece is legal
+        legality = True
+
+        enemy_pieces = self.light_enemy_pieces if light else self.dark_enemy_pieces
+        enemy_pieces = []
+
         # Variable to store minimum number of times to travel outwards
         min_radius = 7 - min(king_pos) if min(king_pos) <= 3 else min(king_pos)
 
-        pawn_direction = [0, 2] if not king.light else [5, 7]
+        pawn_direction = [0, 2] if not light else [5, 7]
 
         diagonal_index = [0, 2, 5, 7]
 
@@ -234,7 +251,7 @@ class Board:
                         print(piece)
 
                         # ALliance Piece
-                        if piece.light == king.light:
+                        if piece.light == light:
                             print("Alliance")
                             print("Direction Index: " + str(dir_index))
                             # If statement to check if no alliance piece was detect so far
@@ -251,7 +268,8 @@ class Board:
                             
                             # There is a pawn 1 square diagonally away
                             if dir_index in pawn_direction and r == 1:
-                                return False
+                                enemy_pieces.append(piece)
+                                legality = False
 
                             if dir_index in diagonal_index:
                                 if type(piece) == Bishop or type(piece) == Queen:
@@ -281,30 +299,6 @@ class Board:
 
                             # Only Queen and Castle (maybe Knight) can effect king in this direction
                             else:
-                                if r == 2:
-                                    print("Checking for Knights")
-                                    if dir_index == 1 or dir_index == 5:
-                                        knight_pos_left = [new_dir[0] - 1, new_dir[1]]
-                                        knight_pos_right = [new_dir[0] + 1, new_dir[1]]
-                                        
-                                        if 0 <= (knight_pos_left[0] and knight_pos_left[1]) < 8: 
-                                            if type(piece) == Knight:
-                                                return False     
-
-                                        if 0 <= (knight_pos_right[0] and knight_pos_right[1]) < 8: 
-                                            if type(piece) == Knight:
-                                                return False   
-                                    else: 
-                                        knight_pos_up = [new_dir[0], new_dir[1] - 1]
-                                        knight_pos_down = [new_dir[0], new_dir[1] + 1]
-                                        
-                                        if 0 <= (knight_pos_up[0] and knight_pos_up[1]) < 8: 
-                                            if type(piece) == Knight:
-                                                return False     
-
-                                        if 0 <= (knight_pos_down[0] and knight_pos_down[1]) < 8: 
-                                            if type(piece) == Knight:
-                                                return False   
 
                                 if type(piece) == Castle or type(piece) == Queen:
                                     print(
@@ -336,9 +330,47 @@ class Board:
                             # No alliance piece so far, this is an 'immediate enemy'
                             if pinPieceRadius == 0:
                                 print("Immediate enemy: " + str(new_dir))
-                                return False
+                                enemy_pieces.append(piece)
+                                legality = False
+                if r == 2:
+                    print("Checking for Knights")
+                    if dir_index == 1 or dir_index == 6:
+                        knight_pos_left = [new_dir[0] - 1, new_dir[1]]
+                        knight_pos_right = [new_dir[0] + 1, new_dir[1]]
+                        
+                        if 0 <= knight_pos_left[0] < 8 and 0 <= knight_pos_left[1] < 8: 
+                            if type(self.get_piece(knight_pos_left[0], knight_pos_left[1])) == Knight and \
+                                not self.get_piece(knight_pos_left[0], knight_pos_left[1]).light == light:
 
-        return True
+                                enemy_pieces.append(self.get_piece(knight_pos_left[0], knight_pos_left[1]))
+                                legality = False     
+
+                        if 0 <= knight_pos_right[0] < 8 and 0 <= knight_pos_right[1] < 8: 
+                            if type(self.get_piece(knight_pos_right[0], knight_pos_right[1])) == Knight and \
+                                not self.get_piece(knight_pos_right[0], knight_pos_right[1]).light == light:
+
+                                enemy_pieces.append(self.get_piece(knight_pos_right[0], knight_pos_right[1]))
+                                legality = False   
+
+                    elif dir_index == 3 or dir_index == 4: 
+                        knight_pos_up = [new_dir[0], new_dir[1] - 1]
+                        knight_pos_down = [new_dir[0], new_dir[1] + 1]
+                        
+                        if 0 <= knight_pos_up[0] < 8 and 0 <= knight_pos_up[1] < 8: 
+                            if type(self.get_piece(knight_pos_up[0], knight_pos_up[1])) == Knight and \
+                                not self.get_piece(knight_pos_up[0], knight_pos_up[1]).light == light:
+                                
+                                enemy_pieces.append(self.get_piece(knight_pos_up[0], knight_pos_up[1]))
+                                legality = False     
+
+                        if 0 <= knight_pos_down[0] < 8 and 0 <= knight_pos_down[1] < 8: 
+                            if type(self.get_piece(knight_pos_down[0], knight_pos_down[1])) == Knight and \
+                                not self.get_piece(knight_pos_down[0], knight_pos_down[1]).light == light:
+
+                                enemy_pieces.append(self.get_piece(knight_pos_down[0], knight_pos_down[1]))
+                                legality = False   
+
+        return legality
 
     # Call this method after moving any piece
     # These are pieces that can't be moved
@@ -422,3 +454,38 @@ class Board:
                         king_pos[1] + pinPieceRadius * root_dir[1],
                     )
                 )
+
+    # Potential function to use to see which pieces can move to protect king durig check
+    def collect_guardian_pieces(self, enemy_pieces):
+        print(enemy_pieces)
+        king_pos = self.light_king if not enemy_pieces[0].light else self.dark_king
+        pieces = self.light_pieces if not enemy_pieces[0].light else self.dark_pieces
+
+        # list of all pieces that can move to guard the king
+        guard = []
+
+        for enemy_piece in enemy_pieces:
+            for piece in pieces:
+                legal_moves = piece.get_legal_moves(self)
+
+                if type(enemy_piece) == Queen or type(enemy_piece) == Bishop:
+                    for move in legal_moves:
+                        if abs(move[0] - king_pos[1]) == abs(move[1] - king_pos[1]):
+                            guard.append(piece)
+                            continue
+                
+                elif type(enemy_piece) == Queen or type(enemy_piece) == Castle:
+                    horizontal = enemy_piece.y == king_pos[1]
+
+                    for move in legal_moves:
+                        if horizontal:
+
+                            # Ensure that the new move is within the the enemy and king
+                            # and on the same y-level
+                            if move[1] == king_pos[1] and min(king_pos[0], move[0]) < move[0] < max(king_pos[0], move[0]):
+                                guard.append(piece)
+                        else: 
+                            if move[0] == king_pos[0] and min(king_pos[1], move[1]) < move[1] < max(king_pos[1], move[1]):
+                                guard.append(piece)
+    
+

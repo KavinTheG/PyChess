@@ -1,8 +1,8 @@
 
+from chess.pawn import Pawn
 
-l = [1, 2, 3, 4, 5]
 
-x = 4
+dark_pawn1 = Pawn(0 , 1, False, 20)
+dark_pawn2 = Pawn(0 , 1, False, 20)
 
-if [i > 6 for i in l]:
-    print(":)")
+print(dark_pawn1 == dark_pawn2)

@@ -20,6 +20,8 @@ class King(GeneralPiece):
 
         self.rect = self.sprite.get_rect()
 
+
+        self.x, self.y = x, y
         self.rect_x = x * block_size
         self.rect_y = y * block_size
 
@@ -36,8 +38,7 @@ class King(GeneralPiece):
 
         for dir in directions:
             new_x, new_y = self.x + dir[0], self.y + dir[1] 
-            piece = board.get_piece(new_x, new_y)
-
+            print(str([new_x, new_y]))
             if 0 <= new_x < 8 and 0 <= new_y < 8:
                 piece = board.get_piece(new_x, new_y)
                 if type(piece) == int:
@@ -45,9 +46,7 @@ class King(GeneralPiece):
                 else:
                     if not piece.light == self.light:
                         possible_moves.append([new_x, new_y])
-                        break
-                    else:
-                        break
+                        
         return possible_moves
 
     def __repr__(self) -> str:
