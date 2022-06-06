@@ -163,7 +163,7 @@ class Board:
                 if self.check:
                     king_killers = self.light_enemy_pieces if piece.light else self.dark_enemy_pieces
                     guards = self.collect_guardian_pieces(king_killers)
-                    if not piece in guards:
+                    if not piece in guards and not type(piece) == King:
                         return False
 
 
@@ -196,7 +196,7 @@ class Board:
                 opp_king_pos = self.dark_king if piece.light else self.light_king
 
                 # Checking if the current opposition king is in check
-                self.check = not self.is_square_safe(not piece.light, opp_king_pos )
+                self.check = not self.is_square_safe(not piece.light, opp_king_pos)
                 return True
 
         return False
@@ -215,7 +215,7 @@ class Board:
         # Ensures if the piece is legal
         legality = True
 
-        enemy_pieces = self.light_enemy_pieces if light else self.dark_enemy_pieces
+        #enemy_pieces = self.light_enemy_pieces if light else self.dark_enemy_pieces
         enemy_pieces = []
 
         # Variable to store minimum number of times to travel outwards
@@ -370,6 +370,11 @@ class Board:
                                 enemy_pieces.append(self.get_piece(knight_pos_down[0], knight_pos_down[1]))
                                 legality = False   
 
+        if light:
+            self.light_enemy_pieces = enemy_pieces
+        else:
+            self.dark_enemy_pieces = enemy_pieces
+
         return legality
 
     # Call this method after moving any piece
@@ -470,22 +475,36 @@ class Board:
 
                 if type(enemy_piece) == Queen or type(enemy_piece) == Bishop:
                     for move in legal_moves:
-                        if abs(move[0] - king_pos[1]) == abs(move[1] - king_pos[1]):
+                        # TODO: Get the following code working lol
+                        if abs(king_pos[0] - enemy_piece.x) == abs(move[0] - enemy_piece.x) == abs(move[1] - enemy_piece.y) and \
+                            min(king_pos[0], enemy_piece.x) < move[0] < min(king_pos[0], enemy_piece.x) and \
+                            min(king_pos[1], enemy_piece.y) < move[1] < max(king_pos[1], enemy_piece.y)    :
+
                             guard.append(piece)
                             continue
                 
                 elif type(enemy_piece) == Queen or type(enemy_piece) == Castle:
-                    horizontal = enemy_piece.y == king_pos[1]
 
                     for move in legal_moves:
-                        if horizontal:
-
+                        if enemy_piece.y == king_pos[1]:
+                            print("!")
                             # Ensure that the new move is within the the enemy and king
                             # and on the same y-level
-                            if move[1] == king_pos[1] and min(king_pos[0], move[0]) < move[0] < max(king_pos[0], move[0]):
+                            if move[1] == king_pos[1] and min(king_pos[0], enemy_piece.x) < move[0] < max(king_pos[0], enemy_piece.x):
                                 guard.append(piece)
                         else: 
-                            if move[0] == king_pos[0] and min(king_pos[1], move[1]) < move[1] < max(king_pos[1], move[1]):
+                            
+                            '''
+                            print("!!")
+                            print(str(move[0]) + ' ' + str(king_pos[0]))
+                            print('minimum_y: ' + str(min(king_pos[1], move[1])))
+                            print('maximum_y: ' + str(max(king_pos[1], move[1])))
+                            print('y:' + str(move[1]))
+                            '''
+                            if move[0] == king_pos[0] and min(king_pos[1], enemy_piece.y) < move[1] < max(king_pos[1], enemy_piece.y):
+                                print(":)")
                                 guard.append(piece)
+
+        return guard
     
 
