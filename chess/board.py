@@ -163,6 +163,8 @@ class Board:
                 if self.check:
                     king_killers = self.light_enemy_pieces if piece.light else self.dark_enemy_pieces
                     guards = self.collect_guardian_pieces(king_killers)
+                    print('Guards: '+ str(guards))
+
                     if not piece in guards and not type(piece) == King:
                         return False
 
@@ -462,7 +464,7 @@ class Board:
 
     # Potential function to use to see which pieces can move to protect king durig check
     def collect_guardian_pieces(self, enemy_pieces):
-        print(enemy_pieces)
+        print("Enemies: " + str(enemy_pieces))
         king_pos = self.light_king if not enemy_pieces[0].light else self.dark_king
         pieces = self.light_pieces if not enemy_pieces[0].light else self.dark_pieces
 
@@ -474,20 +476,22 @@ class Board:
                 legal_moves = piece.get_legal_moves(self)
 
                 if type(enemy_piece) == Queen or type(enemy_piece) == Bishop:
+                    print("!")
                     for move in legal_moves:
                         # TODO: Get the following code working lol
-                        if abs(king_pos[0] - enemy_piece.x) == abs(move[0] - enemy_piece.x) == abs(move[1] - enemy_piece.y) and \
-                            min(king_pos[0], enemy_piece.x) < move[0] < min(king_pos[0], enemy_piece.x) and \
+                        print("Piece: " + str(piece) + ", Move: " + str(move))
+                        print("Enemy Location: " + str([enemy_piece.x, enemy_piece.y] ))
+                        if  abs(move[0] - enemy_piece.x) == abs(move[1] - enemy_piece.y) and \
+                            min(king_pos[0], enemy_piece.x) < move[0] < max(king_pos[0], enemy_piece.x) and \
                             min(king_pos[1], enemy_piece.y) < move[1] < max(king_pos[1], enemy_piece.y)    :
 
                             guard.append(piece)
                             continue
                 
                 elif type(enemy_piece) == Queen or type(enemy_piece) == Castle:
-
+                    print("!!")
                     for move in legal_moves:
                         if enemy_piece.y == king_pos[1]:
-                            print("!")
                             # Ensure that the new move is within the the enemy and king
                             # and on the same y-level
                             if move[1] == king_pos[1] and min(king_pos[0], enemy_piece.x) < move[0] < max(king_pos[0], enemy_piece.x):
