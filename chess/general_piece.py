@@ -30,3 +30,6 @@ class GeneralPiece:
     def __eq__(self, __o: object) -> bool:
         if isinstance(__o, GeneralPiece):
             return __o.x == self.x and __o.y == self.y
+
+    def __hash__(self):
+        return hash(str(self))

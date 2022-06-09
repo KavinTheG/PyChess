@@ -165,7 +165,9 @@ class Board:
                     guards = self.collect_guardian_pieces(king_killers)
                     print('Guards: '+ str(guards))
 
-                    if not piece in guards and not type(piece) == King:
+                    if not piece in guards.keys() and not type(piece) == King:
+                        return False
+                    elif not guards.get(piece) == move:
                         return False
 
 
@@ -469,7 +471,7 @@ class Board:
         pieces = self.light_pieces if not enemy_pieces[0].light else self.dark_pieces
 
         # list of all pieces that can move to guard the king
-        guard = []
+        guard = {}
 
         for enemy_piece in enemy_pieces:
             for piece in pieces:
@@ -485,7 +487,7 @@ class Board:
                             min(king_pos[0], enemy_piece.x) < move[0] < max(king_pos[0], enemy_piece.x) and \
                             min(king_pos[1], enemy_piece.y) < move[1] < max(king_pos[1], enemy_piece.y)    :
 
-                            guard.append(piece)
+                            guard.update({ piece : move})
                             continue
                 
                 elif type(enemy_piece) == Queen or type(enemy_piece) == Castle:
@@ -495,19 +497,12 @@ class Board:
                             # Ensure that the new move is within the the enemy and king
                             # and on the same y-level
                             if move[1] == king_pos[1] and min(king_pos[0], enemy_piece.x) < move[0] < max(king_pos[0], enemy_piece.x):
-                                guard.append(piece)
+                                guard.update({ piece : move})
                         else: 
                             
-                            '''
-                            print("!!")
-                            print(str(move[0]) + ' ' + str(king_pos[0]))
-                            print('minimum_y: ' + str(min(king_pos[1], move[1])))
-                            print('maximum_y: ' + str(max(king_pos[1], move[1])))
-                            print('y:' + str(move[1]))
-                            '''
                             if move[0] == king_pos[0] and min(king_pos[1], enemy_piece.y) < move[1] < max(king_pos[1], enemy_piece.y):
                                 print(":)")
-                                guard.append(piece)
+                                guard.update({ piece : move})
 
         return guard
     
