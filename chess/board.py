@@ -140,6 +140,14 @@ class Board:
                         (self.board[row][col].rect_x, self.board[row][col].rect_y),
                     )
 
+    # Used to indicate which move is possible
+    def indicate_move(self, possible_moves):
+        # Convert squares into their cartesian coordinates
+
+        for move in possible_moves:
+            coord = [i * self.block_size + self.block_size * 0.5 for i in move]
+            pygame.draw.circle(self.surface, (0, 255, 0), coord, self.block_size // 4, 0)
+
     def print_board_state(self):
         for row in range(self.size):
             print(self.board[row])
@@ -149,9 +157,9 @@ class Board:
 
     def move_piece(self, piece, new_move):
         #new_move = tuple(new_move)
-        print(str(piece) + " was selected.")
+        # print(str(piece) + " was selected.")
         legal_moves = piece.get_legal_moves(self)
-        print(legal_moves)
+        # print(legal_moves)
 
         if piece in self.pinned_pieces:
             return False
@@ -163,15 +171,15 @@ class Board:
                 if self.check:
                     king_killers = self.light_enemy_pieces if piece.light else self.dark_enemy_pieces
                     guards = self.collect_guardian_pieces(king_killers)
-                    print('Guards: '+ str(guards))
+                    # print('Guards: '+ str(guards))
 
                     if not piece in guards.keys() and not type(piece) == King:
                         return False
-                    elif not guards.get(piece) == move:
+                    elif not guards.get(piece) == move and not type(piece) == King:
                         return False
 
 
-                print("New Move: " + str(new_move))
+                # print("New Move: " + str(new_move))
 
                 if type(piece) == King:
                     if not self.is_square_safe(piece.light, new_move):
@@ -192,7 +200,7 @@ class Board:
 
                 self.update_pins(not piece.light)
 
-                print("New Pinned Pieces: " + str(self.pinned_pieces))
+                # print("New Pinned Pieces: " + str(self.pinned_pieces))
 
                 self.draw_board()
                 self.draw_pieces()
@@ -202,8 +210,21 @@ class Board:
                 # Checking if the current opposition king is in check
                 self.check = not self.is_square_safe(not piece.light, opp_king_pos)
                 return True
-
         return False
+    
+    def is_check_mate(self, light):
+        if not self.check:
+            return False
+
+        king = self.get_piece(self.light_king[0],self.light_king[1] ) if light else \
+               self.get_piece(self.dark_king[0], self.dark_king[1])
+
+        legal_moves = king.get_legal_moves(self)
+
+        for move in legal_moves:
+            if self.is_square_safe(king.light, move):
+                return False
+        return True    
 
     # TODO: check for pawns, knights
     # These pieces cant move because it'll cause a check
@@ -242,7 +263,7 @@ class Board:
             for r in range(1, min_radius + 1):
                 new_dir = [king_pos[0] + r * root_dir[0], king_pos[1] + r * root_dir[1]]
 
-                print(new_dir)
+                # rint(new_dir)
 
                 # Skip the current position
                 if current_pos == new_dir:
@@ -252,12 +273,12 @@ class Board:
                     piece = self.get_piece(new_dir[0], new_dir[1])
 
                     if not type(piece) == int:
-                        print(piece)
+                        # print(piece)
 
                         # ALliance Piece
                         if piece.light == light:
-                            print("Alliance")
-                            print("Direction Index: " + str(dir_index))
+                            # print("Alliance")
+                            # print("Direction Index: " + str(dir_index))
                             # If statement to check if no alliance piece was detect so far
                             # Also checks if no enemy piece was already met so far
                             if pinPieceRadius == 0 and not attacker:
@@ -267,8 +288,8 @@ class Board:
 
                         # Enemy piece
                         else:
-                            print("Enemy")
-                            print("Direction Index: " + str(dir_index))
+                            # print("Enemy")
+                            # print("Direction Index: " + str(dir_index))
                             
                             # There is a pawn 1 square diagonally away
                             if dir_index in pawn_direction and r == 1:
@@ -278,24 +299,26 @@ class Board:
                             if dir_index in diagonal_index:
                                 if type(piece) == Bishop or type(piece) == Queen:
 
-                                    print(
-                                        "This piece ( "
-                                        + str(piece)
-                                        + ") is potentially harmful"
-                                    )
+                                    #print(
+                                    #    "This piece ( "
+                                    #    + str(piece)
+                                    #    + ") is potentially harmful"
+                                    #)
+
+                                    pass 
                                 else:
-                                    print(
-                                        "This piece is harmless -> Piece: "
-                                        + str(piece)
-                                        + ", dir-index: "
-                                        + str(dir_index)
-                                    )
-                                    print(
-                                        "Status of conditions:"
-                                        + str(bool(dir_index == 0 or 2 or 5 or 7))
-                                        + ", "
-                                        + str(not (type(piece) == Bishop or Queen))
-                                    )
+                                    # print(
+                                    #    "This piece is harmless -> Piece: "
+                                    #    + str(piece)
+                                    #    + ", dir-index: "
+                                    #    + str(dir_index)
+                                    #)
+                                    # print(
+                                    #    "Status of conditions:"
+                                    #    + str(bool(dir_index == 0 or 2 or 5 or 7))
+                                    #    + ", "
+                                    #    + str(not (type(piece) == Bishop or Queen))
+                                    #)
 
                                     # Pin piece functionality
                                     pinPieceRadius = r
@@ -305,39 +328,40 @@ class Board:
                             else:
 
                                 if type(piece) == Castle or type(piece) == Queen:
-                                    print(
-                                        "This piece ("
-                                        + str(piece)
-                                        + ") is potentially harmful"
-                                    )
+                                    # print(
+                                    #    "This piece ("
+                                    #    + str(piece)
+                                    #    + ") is potentially harmful"
+                                    #)
+                                    pass
                                 else:
-                                    print(
+                                    '''# # # # # # # # print(
                                         "This piece is harmless -> Piece: "
                                         + str(piece)
                                         + ", dir-index: "
                                         + str(dir_index)
                                     )
-                                    print(
+                                    # # # # # # # # print(
                                         "Status of conditions:"
                                         + str(bool(dir_index == 0 or 2 or 5 or 7))
                                         + ", "
                                         + str(not (type(piece) == Castle or Queen))
-                                    )
+                                    )'''
 
                                     pinPieceRadius = r
 
                                     continue
 
-                            print("pinned piece: " + str(pinPieceRadius))
+                            ## # # # # # # print("pinned piece: " + str(pinPieceRadius))
 
                             # If statement to check if there is any alliance piece detected already
                             # No alliance piece so far, this is an 'immediate enemy'
                             if pinPieceRadius == 0:
-                                print("Immediate enemy: " + str(new_dir))
+                                ## # # # # # # print("Immediate enemy: " + str(new_dir))
                                 enemy_pieces.append(piece)
                                 legality = False
                 if r == 2:
-                    print("Checking for Knights")
+                    ## # # # # # # print("Checking for Knights")
                     if dir_index == 1 or dir_index == 6:
                         knight_pos_left = [new_dir[0] - 1, new_dir[1]]
                         knight_pos_right = [new_dir[0] + 1, new_dir[1]]
@@ -466,7 +490,7 @@ class Board:
 
     # Potential function to use to see which pieces can move to protect king durig check
     def collect_guardian_pieces(self, enemy_pieces):
-        print("Enemies: " + str(enemy_pieces))
+        # # # # # # # print("Enemies: " + str(enemy_pieces))
         king_pos = self.light_king if not enemy_pieces[0].light else self.dark_king
         pieces = self.light_pieces if not enemy_pieces[0].light else self.dark_pieces
 
@@ -478,30 +502,30 @@ class Board:
                 legal_moves = piece.get_legal_moves(self)
 
                 if type(enemy_piece) == Queen or type(enemy_piece) == Bishop:
-                    print("!")
+                    # # # # # # # print("!")
                     for move in legal_moves:
                         # TODO: Get the following code working lol
-                        print("Piece: " + str(piece) + ", Move: " + str(move))
-                        print("Enemy Location: " + str([enemy_piece.x, enemy_piece.y] ))
+                        # # # # # # # print("Piece: " + str(piece) + ", Move: " + str(move))
+                        # # # # # # # print("Enemy Location: " + str([enemy_piece.x, enemy_piece.y] ))
                         if  abs(move[0] - enemy_piece.x) == abs(move[1] - enemy_piece.y) and \
-                            min(king_pos[0], enemy_piece.x) < move[0] < max(king_pos[0], enemy_piece.x) and \
-                            min(king_pos[1], enemy_piece.y) < move[1] < max(king_pos[1], enemy_piece.y)    :
+                            min(king_pos[0], enemy_piece.x) <= move[0] <= max(king_pos[0], enemy_piece.x) and \
+                            min(king_pos[1], enemy_piece.y) <= move[1] <= max(king_pos[1], enemy_piece.y)    :
 
                             guard.update({ piece : move})
                             continue
                 
                 elif type(enemy_piece) == Queen or type(enemy_piece) == Castle:
-                    print("!!")
+                    # # # # # # # print("!!")
                     for move in legal_moves:
                         if enemy_piece.y == king_pos[1]:
                             # Ensure that the new move is within the the enemy and king
                             # and on the same y-level
-                            if move[1] == king_pos[1] and min(king_pos[0], enemy_piece.x) < move[0] < max(king_pos[0], enemy_piece.x):
+                            if move[1] == king_pos[1] and min(king_pos[0], enemy_piece.x) <= move[0] <= max(king_pos[0], enemy_piece.x):
                                 guard.update({ piece : move})
                         else: 
                             
-                            if move[0] == king_pos[0] and min(king_pos[1], enemy_piece.y) < move[1] < max(king_pos[1], enemy_piece.y):
-                                print(":)")
+                            if move[0] == king_pos[0] and min(king_pos[1], enemy_piece.y) <= move[1] <= max(king_pos[1], enemy_piece.y):
+                                # # # # # # # print(":)")
                                 guard.update({ piece : move})
 
         return guard

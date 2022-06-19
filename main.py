@@ -11,8 +11,8 @@ WHITE = (200, 200, 200)
 DARK = (101, 67, 33)
 LIGHT = (181, 101, 29)
 
-WINDOW_HEIGHT = 400
-WINDOW_WIDTH = 400
+WINDOW_HEIGHT = 480
+WINDOW_WIDTH = 480
 
 # Chess board size (8 by 8)
 SIZE = 8
@@ -22,7 +22,7 @@ BLOCKSIZE = (int)(WINDOW_WIDTH / SIZE)
 def main():
     global SCREEN, CLOCK
     pygame.init()
-    SCREEN = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+    SCREEN = pygame.display.set_mode( (WINDOW_WIDTH, WINDOW_HEIGHT) )
     CLOCK = pygame.time.Clock()
     SCREEN.fill(BLACK)
 
@@ -34,14 +34,30 @@ def main():
     # Variable determines player's turn
     light_turn = True
 
+    check_mate = False
+
     while True:
 
-        for event in pygame.event.get():
 
-            if event.type == pygame.QUIT:
+        for event in pygame.event.get():
+            if check_mate and event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    print('reset')
+                    # Store the selected piece
+                    piece = None
+
+                    board = Board(SCREEN, 8, DARK, LIGHT, BLOCKSIZE)
+                    
+                    # Variable determines player's turn
+                    light_turn = True
+
+                    check_mate = False    
+
+            elif event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+
+            elif event.type == pygame.MOUSEBUTTONDOWN and not check_mate:
                 coordinates = [i // BLOCKSIZE for i in pygame.mouse.get_pos()]
                 
                 # No piece was selected so far
@@ -53,6 +69,7 @@ def main():
                     if not type(possible_piece) == int:
                         if possible_piece.light == light_turn:
                             piece = possible_piece
+                            board.indicate_move(piece.get_legal_moves(board))
                         else: 
                             piece = None
                     else: 
@@ -64,18 +81,24 @@ def main():
 
                     if valid_move:
                         light_turn = not light_turn
-                        print(light_turn)
+                        print("Turn: " + str(light_turn))
+                        
+                        check_mate = board.is_check_mate(light_turn)
+                        print("Checkmate: " + str(board.is_check_mate(light_turn)))
 
                         # Clear up piece variable
                         piece = None
                     else:
 
-                        # Change focus to another alliance piece if it was selected
+                        # Change focus to another alliance piece if it was selecte
                         possible_piece = board.get_piece(coordinates[0], coordinates[1])
 
                         if not type(possible_piece) == int:
                             if possible_piece.light == light_turn:
                                 piece = possible_piece
+                                board.draw_board()
+                                board.draw_pieces()
+                                board.indicate_move(piece.get_legal_moves(board))
 
                             
 
