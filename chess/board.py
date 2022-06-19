@@ -490,7 +490,10 @@ class Board:
 
     # Potential function to use to see which pieces can move to protect king durig check
     def collect_guardian_pieces(self, enemy_pieces):
-        # # # # # # # print("Enemies: " + str(enemy_pieces))
+        # print("Enemies: " + str(enemy_pieces))
+        if len(enemy_pieces) == 0:
+            return {}
+
         king_pos = self.light_king if not enemy_pieces[0].light else self.dark_king
         pieces = self.light_pieces if not enemy_pieces[0].light else self.dark_pieces
 
@@ -502,7 +505,7 @@ class Board:
                 legal_moves = piece.get_legal_moves(self)
 
                 if type(enemy_piece) == Queen or type(enemy_piece) == Bishop:
-                    # # # # # # # print("!")
+                    # print("!")
                     for move in legal_moves:
                         # TODO: Get the following code working lol
                         # # # # # # # print("Piece: " + str(piece) + ", Move: " + str(move))
