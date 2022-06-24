@@ -69,7 +69,7 @@ def main():
                     if not type(possible_piece) == int:
                         if possible_piece.light == light_turn:
                             piece = possible_piece
-                            board.indicate_move(piece.get_legal_moves(board))
+                            board.indicate_move(piece)
                         else: 
                             piece = None
                     else: 
@@ -98,7 +98,7 @@ def main():
                                 piece = possible_piece
                                 board.draw_board()
                                 board.draw_pieces()
-                                board.indicate_move(piece.get_legal_moves(board))
+                                board.indicate_move(piece)
 
                             
 

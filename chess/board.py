@@ -141,10 +141,13 @@ class Board:
                     )
 
     # Used to indicate which move is possible
-    def indicate_move(self, possible_moves):
+    def indicate_move(self, piece):
         # Convert squares into their cartesian coordinates
-
+        possible_moves = piece.get_legal_moves(self)
         for move in possible_moves:
+            if type(piece) == King:
+                if not self.is_square_safe(piece.light, move):
+                    continue
             coord = [i * self.block_size + self.block_size * 0.5 for i in move]
             pygame.draw.circle(self.surface, (0, 255, 0), coord, self.block_size // 4, 0)
 
@@ -156,8 +159,7 @@ class Board:
         return self.board[y][x]
 
     def move_piece(self, piece, new_move):
-        #new_move = tuple(new_move)
-        # print(str(piece) + " was selected.")
+        
         legal_moves = piece.get_legal_moves(self)
         # print(legal_moves)
 
