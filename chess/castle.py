@@ -31,7 +31,8 @@ class Castle(GeneralPiece):
         directions = [(1,0), (0, 1), (0, -1), (-1, 0)]
 
         # Variable to store minimum number of times to travel outwards
-        min_radius = 7 - min(self.x, self.y) if min(self.x, self.y) <= 3 else min(self.x, self.y)
+        min_radius = 8 - min(self.x, self.y) if min(self.x, self.y) <= 3 else min(self.x, self.y)
+        print(min_radius)
 
         possible_moves = []
 

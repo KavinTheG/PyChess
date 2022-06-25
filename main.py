@@ -40,18 +40,29 @@ def main():
 
 
         for event in pygame.event.get():
-            if check_mate and event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    print('reset')
-                    # Store the selected piece
-                    piece = None
+            if check_mate:
+                font1 = pygame.font.SysFont('freesanbold.ttf', 35)
 
-                    board = Board(SCREEN, 8, DARK, LIGHT, BLOCKSIZE)
-                    
-                    # Variable determines player's turn
-                    light_turn = True
+                winner = 'Light' if light_turn else 'Dark'
 
-                    check_mate = False    
+                end_text = font1.render(winner + ' wins! Press space to reset', True, (0, 255, 0))
+                text_rect = end_text.get_rect()
+                text_rect.center = (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)
+
+                SCREEN.blit(end_text, text_rect)
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        print('reset')
+                        # Store the selected piece
+                        piece = None
+
+                        board = Board(SCREEN, 8, DARK, LIGHT, BLOCKSIZE)
+                        
+                        # Variable determines player's turn
+                        light_turn = True
+
+                        check_mate = False    
 
             elif event.type == pygame.QUIT:
                 pygame.quit()
